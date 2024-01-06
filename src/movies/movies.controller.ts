@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Param,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
-import { Response } from 'express';
+import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
 
 import { MoviesService } from './movies.service';
 
@@ -16,20 +7,8 @@ export class MoviesController {
   constructor(private moviesService: MoviesService) {}
 
   @Get()
-  search(
-    @Query('name') name: string,
-    @Query('page') page: number,
-    @Res() res: Response,
-  ) {
-    if (!name) {
-      return res.status(400).json({
-        error: 'Name is required',
-      });
-    }
-
-    res.redirect(
-      `https://www.omdbapi.com/?apikey=8b8306f5&s=${name}&page=${page || 1}`,
-    );
+  search(@Query('name') name: string) {
+    return this.moviesService.search(name);
   }
 
   @Get('/saved')
@@ -42,8 +21,8 @@ export class MoviesController {
     return this.moviesService.save(id);
   }
 
-  @Delete('/:id/delete')
-  delete(@Param('id') id: string) {
-    return this.moviesService.delete(id);
+  @Delete('/:id/unsave')
+  unsave(@Param('id') id: string) {
+    return this.moviesService.unsave(id);
   }
 }

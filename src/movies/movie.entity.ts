@@ -15,7 +15,7 @@ export class Movie {
   title: string;
 
   @Column()
-  rating: number;
+  rating: string;
 
   @Column({ name: 'poster_url' })
   posterUrl: string;
