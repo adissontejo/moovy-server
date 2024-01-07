@@ -1,13 +1,21 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { MoviesController } from './movies.controller';
-import { Movie } from './movie.entity';
+import { Movie } from './entities/movie.entity';
 import { MoviesService } from './movies.service';
+import { LoadMovieMiddleware } from './middlewares/load-movie.middleware';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Movie])],
   controllers: [MoviesController],
   providers: [MoviesService],
 })
-export class MoviesModule {}
+export class MoviesModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoadMovieMiddleware)
+      .exclude('movies/:id/save')
+      .forRoutes('movies/:id*');
+  }
+}

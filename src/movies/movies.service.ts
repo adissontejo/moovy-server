@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
-import { Movie } from './movie.entity';
+import { Movie } from './entities/movie.entity';
 
 @Injectable()
 export class MoviesService {
@@ -57,7 +57,7 @@ export class MoviesService {
     return result;
   }
 
-  async list() {
+  list() {
     return this.moviesRepository.find();
   }
 
@@ -93,7 +93,19 @@ export class MoviesService {
     return this.moviesRepository.save(newMovie);
   }
 
-  async unsave(id: string) {
-    this.moviesRepository.delete(id);
+  addReview(movie: Movie, reviewUrl: string) {
+    movie.reviewUrl = reviewUrl;
+
+    return this.moviesRepository.save(movie);
+  }
+
+  deleteReview(movie: Movie) {
+    movie.reviewUrl = null;
+
+    return this.moviesRepository.save(movie);
+  }
+
+  delete(movie: Movie) {
+    this.moviesRepository.delete(movie);
   }
 }

@@ -1,6 +1,23 @@
-import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Controller,
+  Delete,
+  Get,
+  HttpException,
+  Param,
+  Post,
+  Query,
+  Req,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Request } from 'express';
+import { unlink } from 'fs';
 
+import { reviewMulterConfig } from 'src/config/multer';
 import { MoviesService } from './movies.service';
+import { LoadMovie } from './decorators/load-movie.decorator';
+import { Movie } from './entities/movie.entity';
 
 @Controller('movies')
 export class MoviesController {
@@ -22,7 +39,34 @@ export class MoviesController {
   }
 
   @Delete('/:id/unsave')
-  unsave(@Param('id') id: string) {
-    return this.moviesService.unsave(id);
+  unsave(@LoadMovie() movie: Movie) {
+    return this.moviesService.delete(movie);
+  }
+
+  @Post('/:id/review')
+  @UseInterceptors(FileInterceptor('review', reviewMulterConfig))
+  async addReview(
+    @Req() req: Request,
+    @UploadedFile() review: Express.Multer.File,
+    @LoadMovie() movie: Movie,
+  ) {
+    if (!review) {
+      throw new HttpException({ error: 'Review mp3 file is required' }, 400);
+    }
+
+    const reviewUrl = `${req.get('host')}/uploads/${review.filename}`;
+
+    await this.moviesService.addReview(movie, reviewUrl);
+
+    return { reviewUrl };
+  }
+
+  @Delete('/:id/review')
+  async deleteReview(@LoadMovie() movie: Movie) {
+    const filename = movie.reviewUrl.split('/').slice(-1)[0];
+
+    unlink(`./uploads/${filename}`, () => {});
+
+    await this.moviesService.deleteReview(movie);
   }
 }

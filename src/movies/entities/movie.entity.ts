@@ -20,6 +20,9 @@ export class Movie {
   @Column({ name: 'poster_url' })
   posterUrl: string;
 
+  @Column({ name: 'review_url', nullable: true })
+  reviewUrl: string;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
