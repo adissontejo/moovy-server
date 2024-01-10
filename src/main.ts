@@ -1,8 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: { origin: '*' } });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    cors: { origin: '*' },
+  });
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads',
+  });
 
   await app.listen(process.env.APP_PORT || 3030);
 }

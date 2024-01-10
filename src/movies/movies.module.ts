@@ -15,7 +15,7 @@ export class MoviesModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(LoadMovieMiddleware)
-      .exclude('movies/:id/save')
-      .forRoutes('movies/:id*');
+      .exclude('movies', 'movies/saved', 'movies/:id/save')
+      .forRoutes(MoviesController);
   }
 }

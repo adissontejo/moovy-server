@@ -54,7 +54,13 @@ export class MoviesController {
       throw new HttpException({ error: 'Review mp3 file is required' }, 400);
     }
 
-    const reviewUrl = `${req.get('host')}/uploads/${review.filename}`;
+    if (movie.reviewUrl) {
+      const filename = movie.reviewUrl.split('/').slice(-1)[0];
+
+      unlink(filename, () => {});
+    }
+
+    const reviewUrl = `${process.env.HOST_URL}/uploads/${review.filename}`;
 
     await this.moviesService.addReview(movie, reviewUrl);
 
@@ -63,6 +69,10 @@ export class MoviesController {
 
   @Delete('/:id/review')
   async deleteReview(@LoadMovie() movie: Movie) {
+    if (!movie.reviewUrl) {
+      return;
+    }
+
     const filename = movie.reviewUrl.split('/').slice(-1)[0];
 
     unlink(`./uploads/${filename}`, () => {});

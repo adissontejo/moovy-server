@@ -105,7 +105,7 @@ export class MoviesService {
     return this.moviesRepository.save(movie);
   }
 
-  delete(movie: Movie) {
-    this.moviesRepository.delete(movie);
+  async delete(movie: Movie) {
+    await this.moviesRepository.delete({ id: movie.id });
   }
 }
